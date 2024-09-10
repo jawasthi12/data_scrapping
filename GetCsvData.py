@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, FloatType
+from pyspark.sql.types import StructType, StructField, StringType, FloatType, IntegerType
 from pyspark.sql.functions import regexp_replace, col, when
 
 
@@ -39,12 +39,12 @@ def clean_data(spark_df):
 
     # Additionally, handle 'NaN' as a string and replace it with empty string as well
     spark_df = spark_df.replace('NaN', '')
-    numeric_columns = ['magnitude', 'units']
+    numeric_columns = ['magnitude']
     for col_name in numeric_columns:
         # Replace non-numeric characters except dots
         spark_df = spark_df.withColumn(col_name, regexp_replace(col(col_name), '[^0-9.]', ''))
         # Cast to FloatType
-        spark_df = spark_df.withColumn(col_name, col(col_name).cast(FloatType()))
+        spark_df = spark_df.withColumn(col_name, col(col_name).cast(IntegerType()))
         spark_df = spark_df.withColumn(col_name, col(col_name).cast(StringType()))
 
     # Assuming you want to prepend '$' sign to `data_value` column
@@ -62,11 +62,11 @@ def clean_data(spark_df):
 def define_schema():
     schema = StructType([
         StructField("series_reference", StringType(), True),
-        StructField("period", StringType(), True),
-        StructField("data_value", StringType(), True),
+        StructField("period", FloatType(), True),
+        StructField("data_value", FloatType(), True),
         StructField("status", StringType(), True),
         StructField("units", StringType(), True),
-        StructField("magnitude", StringType(), True),
+        StructField("magnitude", IntegerType(), True),
         StructField("subject", StringType(), True),
         StructField("group", StringType(), True),
         StructField("series_title_1", StringType(), True),
