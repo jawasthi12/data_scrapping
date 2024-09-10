@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  python_app:
+    build: .
+    container_name: python_app
+    depends_on:
+      - postgres_db
+    networks:
+      - my_network
+  postgres_db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: data_scrapping
+      POSTGRES_USER: postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - my_network
+networks:
+  my_network:
+    driver: bridge
