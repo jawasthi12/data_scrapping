@@ -16,7 +16,7 @@ def download_csv(url, output_file):
 # Function 2: Load CSV into Pandas DataFrame
 def load_to_pandas(file_path):
     try:
-        df = pd.read_csv(file_path, encoding='utf-8')
+        df = pd.read_csv(file_path, encoding='utf-8' ,low_memory=False)
     except UnicodeDecodeError:
         df = pd.read_csv(file_path, encoding='ISO-8859-1')
     print("Loaded data into Pandas DataFrame")

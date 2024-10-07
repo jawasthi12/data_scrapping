@@ -1,9 +1,9 @@
 {
-  "url": "https://www.cms.gov/Medicare/Medicare-Advantage/MedicareAdvantageApps",
+  "url": "https://www.cms.gov/files/document/2024-hsd-reference-file-updated-10182023.xlsx",
   "file_pattern": "2024 HSD Reference File Updated 10_18_2023",
   "sheets": {
-    "provider_time_distance": "Provider-time and distance",
-    "provider_minimums": "Provider-minimum"
+    "provider_time_distance": "Provider Time & Distance",
+    "provider_minimums": "Minimum Provider #s"
   },
   "time_distance_schema": [
     "county",
