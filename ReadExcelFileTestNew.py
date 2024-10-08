@@ -117,28 +117,51 @@ def process_time_distance_data(excel_file):
 
     county_info_columns = extract_county_info(df)
 
-    # Iterate through the columns to extract specialty code, description, time, and distance
+    # Iterate over the rows of the DataFrame
     for index, row in df.iterrows():
-        row_data = {col_name: row[county_info_columns[col_name]] for col_name in county_info_columns.keys()}
+        # Extract the county-level information once per row
+        row_data_base = {col_name: row[county_info_columns[col_name]] for col_name in county_info_columns.keys()}
 
-        # Now, go through the columns for Time and Distance for this row
+        # Track specialty and its time and distance in the same row
+        specialty_dict = {}
+
+        # Iterate through all the columns to fill time and distance for the same specialty
         for col in df.columns:
-            if 'Time' in col[2]:
-                row_data['specialty_description'] = col[0]  # Specialty Description
-                row_data['specialty_code'] = col[1]  # Specialty Code
-                row_data['time'] = row[col] if pd.notna(row[col]) else None  # Time value
-            elif 'Distance' in col[2]:
-                row_data['distance'] = row[col] if pd.notna(row[col]) else None  # Distance value
+            # Check if the third level of the column is 'Time' or 'Distance'
+            if 'Time' in col[2] or 'Distance' in col[2]:
+                # Extract the specialty information
+                specialty_desc = col[0]  # Specialty Description
+                specialty_code = col[1]  # Specialty Code
 
-        # Append the complete row with both Time and Distance
-        data_list.append(row_data)
+                # If this specialty is not already in the dictionary, create a new entry
+                if specialty_code not in specialty_dict:
+                    specialty_dict[specialty_code] = {
+                        'specialty_description': specialty_desc,
+                        'specialty_code': specialty_code,
+                        'time': "",
+                        'distance': ""
+                    }
+
+                # Assign time and distance values to the same row for each specialty
+                if 'Time' in col[2]:
+                    specialty_dict[specialty_code]['time'] = row[col] if pd.notna(row[col]) else ""
+                elif 'Distance' in col[2]:
+                    specialty_dict[specialty_code]['distance'] = row[col] if pd.notna(row[col]) else ""
+
+        # After processing all columns, add the data to the list
+        for specialty_code, specialty_data in specialty_dict.items():
+            row_data = row_data_base.copy()
+            row_data.update(specialty_data)
+            data_list.append(row_data)
 
     # Convert the list of dicts to a DataFrame
     processed_df = pd.DataFrame(data_list)
 
-    # Optionally, fill missing values for 'Time' and 'Distance' columns
-    processed_df['time'].fillna('Missing', inplace=True)
-    processed_df['distance'].fillna('Missing', inplace=True)
+    # Fill missing values for 'Time' and 'Distance' columns with empty strings
+    if 'time' in processed_df.columns:
+        processed_df['time'].fillna('', inplace=True)
+    if 'distance' in processed_df.columns:
+        processed_df['distance'].fillna('', inplace=True)
 
     # Rename columns: convert to lowercase, replace spaces with underscores, and remove hyphens
     processed_df.rename(columns=lambda x: x.lower().replace(" ", "_").replace("-", ""), inplace=True)
